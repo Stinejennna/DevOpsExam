@@ -3,26 +3,33 @@
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - run: dotnet restore
-      - run: dotnet build --no-restore
-      - run: dotnet test --collect:"XPlat Code Coverage"
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: Install Stryker
-        run: dotnet tool install -g dotnet-stryker
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
 
-      - name: Run mutation tests
-        run: |
-          cd DevOps.Tests
-          dotnet stryker
+      - name: Run tests with coverage
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
+
+      - name: Restore local tools (Stryker)
+        run: dotnet tool restore
+
+      - name: Run mutation tests (Stryker)
+        run: dotnet stryker
