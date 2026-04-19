@@ -95,15 +95,22 @@ jobs:
       - name: Wait for startup
         run: sleep 15
 
-      - name: Run K6 test
-        uses: grafana/run-k6-action@v1
-        with:
-          path: k6-test.js
-
       - name: Run E2E test
-        run: |
-          curl -X POST http://185.196.21.234:8000/api/movies \
+          run: |
+            curl --fail -X POST http://185.196.21.234:8000/api/movies \
             -H "Content-Type: application/json" \
             -d '{"title":"Batman","rating":8}'
+            
+            curl --fail http://185.196.21.234:8000/api/movies
 
-          curl http://185.196.21.234:8000/api/movies
+      - name: Install K6
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y gnupg ca-certificates
+            curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
+            echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+            sudo apt-get update
+            sudo apt-get install -y k6
+
+      - name: Run K6 test
+          run: k6 run k6-test.js
