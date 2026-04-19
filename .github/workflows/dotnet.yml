@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -33,7 +34,7 @@ jobs:
       - name: Begin SonarQube analysis
         run: |
           dotnet sonarscanner begin \
-            /k:"DevOpsExam" \
+            /k:"MovieRater" \
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
@@ -44,7 +45,7 @@ jobs:
       - name: Run tests with coverage
         run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
 
-      - name: Restore local tools (Stryker)
+      - name: Restore local tools
         run: dotnet tool restore
 
       - name: Run mutation tests (Stryker)
