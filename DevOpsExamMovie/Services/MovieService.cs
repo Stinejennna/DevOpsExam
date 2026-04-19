@@ -16,7 +16,7 @@ public class MovieService
         if (string.IsNullOrWhiteSpace(movie.Title))
             throw new ArgumentException("Title is required");
 
-        if (movie.Rating < 1 || movie.Rating > 10)
+        if (movie.Rating is null || movie.Rating < 1 || movie.Rating > 10)
             throw new ArgumentException("Rating must be between 1 and 10");
 
         _movies.Add(movie);
@@ -27,7 +27,7 @@ public class MovieService
         if (_movies.Count == 0)
             return 0;
 
-        return _movies.Average(m => m.Rating);
+        return _movies.Average(m => m.Rating!.Value);
     }
 
     public List<Movie> GetAll()

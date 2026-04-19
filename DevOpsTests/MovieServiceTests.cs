@@ -98,7 +98,42 @@ public class MovieServiceTests
 
         Assert.Equal("Rating must be between 1 and 10", ex.Message);
     }
+    
+    [Fact]
+    public void AddMovie_NullRating_ThrowsException()
+    {
+        var service = new MovieService();
 
+        Assert.Throws<ArgumentException>(() =>
+            service.AddMovie(new Movie
+            {
+                Title = "Test",
+                Rating = null
+            }));
+    }
+    
+    [Fact]
+    public void AddMovie_Rating_1_And_10_AreValid()
+    {
+        var service = new MovieService();
+
+        service.AddMovie(new Movie { Title = "Min", Rating = 1 });
+        service.AddMovie(new Movie { Title = "Max", Rating = 10 });
+
+        Assert.Equal(2, service.GetAll().Count);
+    }
+
+    [Fact]
+    public void GetAverageRating_WithNullableRatings_ReturnsCorrectAverage()
+    {
+        var service = new MovieService();
+
+        service.AddMovie(new Movie { Title = "A", Rating = 8 });
+        service.AddMovie(new Movie { Title = "B", Rating = 10 });
+
+        Assert.Equal(9, service.GetAverageRating());
+    }
+    
     [Fact]
     public void GetAverage_NoMovies_ReturnsZero()
     {
@@ -205,5 +240,19 @@ public class MovieServiceTests
         var value = Assert.IsType<double>(ok.Value);
 
         Assert.Equal(10, value);
+    }
+    
+    [Fact]
+    public void Controller_Add_NullRating_ThrowsException()
+    {
+        var service = new MovieService();
+        var controller = new MoviesController(service);
+
+        Assert.Throws<ArgumentException>(() =>
+            controller.Add(new Movie
+            {
+                Title = "Bad",
+                Rating = null
+            }));
     }
 }

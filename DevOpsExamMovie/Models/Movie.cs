@@ -1,7 +1,13 @@
-﻿namespace DevOpsExamMovie.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DevOpsExamMovie.Models;
 
 public class Movie
 {
-    public required string Title { get; set; }
-    public int Rating { get; set; } // 1–10
+    [Required]
+    public string Title { get; set; } = string.Empty;
+
+    [Required]
+    [Range(1, 10)]
+    public int? Rating { get; set; }
 }
