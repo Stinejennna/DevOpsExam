@@ -2,37 +2,49 @@
 
 using DevOpsExamMovie.Models;
 using DevOpsExamMovie.Services;
-
 public class MovieServiceTests
 {
     [Fact]
-    public void AddMovie_ValidMovie_AddsSuccessfully()
+    public void AddMovie_ValidMovie_AddsMovie()
     {
         var service = new MovieService();
 
-        service.AddMovie(new Movie { Title = "Test", Rating = 5 });
+        service.AddMovie(new Movie
+        {
+            Title = "Inception",
+            Rating = 8
+        });
 
         Assert.Single(service.GetAll());
     }
-    
+
     [Fact]
-    public void AddMovie_RatingTooLow_ThrowsException()
+    public void AddMovie_NullMovie_ThrowsException()
+    {
+        var service = new MovieService();
+
+        Assert.Throws<ArgumentNullException>(() =>
+            service.AddMovie(null!));
+    }
+
+    [Fact]
+    public void AddMovie_InvalidLowRating_ThrowsException()
     {
         var service = new MovieService();
 
         Assert.Throws<ArgumentException>(() =>
             service.AddMovie(new Movie { Title = "Bad", Rating = 0 }));
     }
-    
+
     [Fact]
-    public void AddMovie_RatingTooHigh_ThrowsException()
+    public void AddMovie_InvalidHighRating_ThrowsException()
     {
         var service = new MovieService();
 
         Assert.Throws<ArgumentException>(() =>
             service.AddMovie(new Movie { Title = "Bad", Rating = 11 }));
     }
-    
+
     [Fact]
     public void AddMovie_EmptyTitle_ThrowsException()
     {
@@ -41,39 +53,30 @@ public class MovieServiceTests
         Assert.Throws<ArgumentException>(() =>
             service.AddMovie(new Movie { Title = "", Rating = 5 }));
     }
-    
-    [Fact]
-    public void AddMovie_Null_ThrowsException()
-    {
-        var service = new MovieService();
 
-        Assert.Throws<ArgumentNullException>(() =>
-            service.AddMovie(null));
-    }
-    
-    [Fact]
-    public void GetAverageRating_ReturnsCorrectAverage()
-    {
-        var service = new MovieService();
-
-        service.AddMovie(new Movie { Title = "A", Rating = 5 });
-        service.AddMovie(new Movie { Title = "B", Rating = 7 });
-
-        var avg = service.GetAverageRating();
-
-        Assert.Equal(6, avg, 1);
-    }
-    
     [Fact]
     public void GetAverageRating_NoMovies_ReturnsZero()
     {
         var service = new MovieService();
 
-        var avg = service.GetAverageRating();
+        var result = service.GetAverageRating();
 
-        Assert.Equal(0, avg);
+        Assert.Equal(0, result);
     }
-    
+
+    [Fact]
+    public void GetAverageRating_ReturnsCorrectAverage()
+    {
+        var service = new MovieService();
+
+        service.AddMovie(new Movie { Title = "A", Rating = 6 });
+        service.AddMovie(new Movie { Title = "B", Rating = 8 });
+
+        var result = service.GetAverageRating();
+
+        Assert.Equal(7, result);
+    }
+
     [Fact]
     public void GetAll_ReturnsAllMovies()
     {
@@ -82,29 +85,8 @@ public class MovieServiceTests
         service.AddMovie(new Movie { Title = "A", Rating = 5 });
         service.AddMovie(new Movie { Title = "B", Rating = 7 });
 
-        var movies = service.GetAll();
+        var result = service.GetAll();
 
-        Assert.Equal(2, movies.Count);
-    }
-    
-    [Fact]
-    public void GetAverageRating_OneMovie_ReturnsThatRating()
-    {
-        var service = new MovieService();
-
-        service.AddMovie(new Movie { Title = "A", Rating = 8 });
-
-        Assert.Equal(8, service.GetAverageRating());
-    }
-    
-    [Fact]
-    public void GetAverageRating_SameRatings_ReturnsSame()
-    {
-        var service = new MovieService();
-
-        service.AddMovie(new Movie { Title = "A", Rating = 5 });
-        service.AddMovie(new Movie { Title = "B", Rating = 5 });
-
-        Assert.Equal(5, service.GetAverageRating());
+        Assert.Equal(2, result.Count);
     }
 }
