@@ -38,13 +38,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Build and push Docker image
+      - name: Build Docker image
         run: |
           docker build \
-          -t ghcr.io/stinejennna/devops-exam:staging \
-          -t ghcr.io/stinejennna/devops-exam:latest \
-          -f ./src/DevOpsExam/Dockerfile \
-          docker push ghcr.io/stinejennna --all-tags
+            -t ghcr.io/stinejennna/devops-exam:staging \
+            -t ghcr.io/stinejennna/devops-exam:latest \
+            -f ./DevOpsExamMovie/Dockerfile \
+            .
+
+      - name: Push Docker images
+        run: |
+          docker push ghcr.io/stinejennna/devops-exam:staging
+          docker push ghcr.io/stinejennna/devops-exam:latest
           
       - name: Create release notes
         uses: ncipollo/release-action@v1

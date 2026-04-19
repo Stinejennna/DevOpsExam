@@ -2,7 +2,7 @@
   web:
     image: ghcr.io/stinejennna/devops-exam:staging
     ports:
-      - "8000:8000"
+      - "8000:8080"
         
       - name: Deliver Docker Compose file to staging
         uses: appleboy/scp-action@v0.1.7
