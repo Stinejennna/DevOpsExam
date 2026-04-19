@@ -6,7 +6,8 @@
       "break": 60
     },
     "mutate": [
-      "**/*.cs"
+      "**/Services/*.cs",
+      "**/Controllers/*.cs"
     ]
   }
 }

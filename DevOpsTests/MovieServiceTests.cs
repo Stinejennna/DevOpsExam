@@ -175,4 +175,51 @@ public class MovieServiceTests
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Equal(10d, (double)ok.Value!);
     }
+    
+    [Fact]
+    public void Controller_Add_NullMovie_ReturnsBadRequest()
+    {
+        var controller = new MoviesController(CreateService());
+
+        var result = controller.Add(null!);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public void Controller_GetAll_ReturnsMovies()
+    {
+        var service = CreateService();
+        service.AddMovie(new Movie { Title = "A", Rating = 5 });
+
+        var controller = new MoviesController(service);
+
+        var result = controller.GetAll();
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var movies = Assert.IsAssignableFrom<IEnumerable<Movie>>(ok.Value);
+
+        Assert.Single(movies);
+    }
+
+    [Fact]
+    public void AddMovie_TitleWhitespace_Throws()
+    {
+        var service = CreateService();
+
+        Assert.Throws<ArgumentException>(() =>
+            service.AddMovie(new Movie { Title = "   ", Rating = 5 }));
+    }
+
+    [Fact]
+    public void GetAverage_WithThreeMovies_ReturnsCorrect()
+    {
+        var service = CreateService();
+
+        service.AddMovie(new Movie { Title = "A", Rating = 2 });
+        service.AddMovie(new Movie { Title = "B", Rating = 4 });
+        service.AddMovie(new Movie { Title = "C", Rating = 6 });
+
+        Assert.Equal(4, service.GetAverageRating());
+    }
 }
