@@ -1,7 +1,21 @@
 ﻿services:
   web:
     image: ghcr.io/stinejennna/devops-exam:staging
-    container_name: devops-exam
     ports:
       - "8000:8080"
-    restart: always
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=movies;Username=postgres;Password=postgres
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: movies
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
