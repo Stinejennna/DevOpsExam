@@ -8,6 +8,25 @@
           "build/net9.0/coverlet.collector.targets": {}
         }
       },
+      "Microsoft.AspNetCore.OpenApi/9.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.OpenApi": "1.6.17"
+        },
+        "compile": {
+          "lib/net9.0/Microsoft.AspNetCore.OpenApi.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.OpenApi.dll": {
+            "related": ".xml"
+          }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "Microsoft.CodeCoverage/17.12.0": {
         "type": "package",
         "compile": {
@@ -39,6 +58,19 @@
         },
         "buildMultiTargeting": {
           "buildMultiTargeting/Microsoft.NET.Test.Sdk.props": {}
+        }
+      },
+      "Microsoft.OpenApi/1.6.17": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Microsoft.OpenApi.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.OpenApi.dll": {
+            "related": ".pdb;.xml"
+          }
         }
       },
       "Microsoft.TestPlatform.ObjectModel/17.12.0": {
@@ -412,15 +444,21 @@
           "build/net6.0/xunit.runner.visualstudio.props": {}
         }
       },
-      "DevOpsExam/1.0.0": {
+      "DevOpsExamMovie/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.OpenApi": "9.0.9"
+        },
         "compile": {
-          "bin/placeholder/DevOpsExam.dll": {}
+          "bin/placeholder/DevOpsExamMovie.dll": {}
         },
         "runtime": {
-          "bin/placeholder/DevOpsExam.dll": {}
-        }
+          "bin/placeholder/DevOpsExamMovie.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },
@@ -591,6 +629,22 @@
         "coverlet.collector.nuspec"
       ]
     },
+    "Microsoft.AspNetCore.OpenApi/9.0.9": {
+      "sha512": "3Sina0gS/CTYt9XG6DUFPdXOmJui7e551U0kO2bIiDk3vZ2sctxxenN+cE1a5CrUpjIVZfZr32neWYYRO+Piaw==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.openapi/9.0.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "PACKAGE.md",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net9.0/Microsoft.AspNetCore.OpenApi.dll",
+        "lib/net9.0/Microsoft.AspNetCore.OpenApi.xml",
+        "microsoft.aspnetcore.openapi.9.0.9.nupkg.sha512",
+        "microsoft.aspnetcore.openapi.nuspec"
+      ]
+    },
     "Microsoft.CodeCoverage/17.12.0": {
       "sha512": "4svMznBd5JM21JIG2xZKGNanAHNXplxf/kQDFfLHXQ3OnpJkayRK/TjacFjA+EYmoyuNXHo/sOETEfcYtAzIrA==",
       "type": "package",
@@ -677,6 +731,21 @@
         "lib/netcoreapp3.1/_._",
         "microsoft.net.test.sdk.17.12.0.nupkg.sha512",
         "microsoft.net.test.sdk.nuspec"
+      ]
+    },
+    "Microsoft.OpenApi/1.6.17": {
+      "sha512": "Le+kehlmrlQfuDFUt1zZ2dVwrhFQtKREdKBo+rexOwaCoYP0/qpgT9tLxCsZjsgR5Itk1UKPcbgO+FyaNid/bA==",
+      "type": "package",
+      "path": "microsoft.openapi/1.6.17",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/netstandard2.0/Microsoft.OpenApi.dll",
+        "lib/netstandard2.0/Microsoft.OpenApi.pdb",
+        "lib/netstandard2.0/Microsoft.OpenApi.xml",
+        "microsoft.openapi.1.6.17.nupkg.sha512",
+        "microsoft.openapi.nuspec"
       ]
     },
     "Microsoft.TestPlatform.ObjectModel/17.12.0": {
@@ -1039,15 +1108,15 @@
         "xunit.runner.visualstudio.nuspec"
       ]
     },
-    "DevOpsExam/1.0.0": {
+    "DevOpsExamMovie/1.0.0": {
       "type": "project",
-      "path": "../DevOpsExam/DevOpsExam.csproj",
-      "msbuildProject": "../DevOpsExam/DevOpsExam.csproj"
+      "path": "../DevOpsExamMovie/DevOpsExamMovie.csproj",
+      "msbuildProject": "../DevOpsExamMovie/DevOpsExamMovie.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net9.0": [
-      "DevOpsExam >= 1.0.0",
+      "DevOpsExamMovie >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 17.12.0",
       "coverlet.collector >= 10.0.0",
       "xunit >= 2.9.2",
@@ -1079,8 +1148,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj": {
-              "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj"
+            "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj": {
+              "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj"
             }
           }
         }

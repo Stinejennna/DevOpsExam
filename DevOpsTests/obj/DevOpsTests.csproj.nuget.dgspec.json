@@ -4,14 +4,14 @@
     "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsTests\\DevOpsTests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj": {
+    "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj",
-        "projectName": "DevOpsExam",
-        "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj",
+        "projectUniqueName": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj",
+        "projectName": "DevOpsExamMovie",
+        "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj",
         "packagesPath": "C:\\Users\\cakao\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\obj\\",
+        "outputPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\cakao\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -43,6 +43,12 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[9.0.9, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -55,6 +61,9 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
@@ -85,8 +94,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj": {
-                "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExam\\DevOpsExam.csproj"
+              "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj": {
+                "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj"
               }
             }
           }

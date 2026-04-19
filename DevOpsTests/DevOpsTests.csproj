@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DevOpsExam\DevOpsExam.csproj" />
+      <ProjectReference Include="..\DevOpsExamMovie\DevOpsExamMovie.csproj" />
     </ItemGroup>
 
 </Project>
