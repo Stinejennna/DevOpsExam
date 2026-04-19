@@ -44,4 +44,11 @@ public class MoviesController : ControllerBase
         _service.DeleteMovie(id);
         return Ok();
     }
+    
+    [HttpPut("{id}/rating")]
+    public IActionResult UpdateRating(int id, [FromBody] RatingUpdate request)
+    {
+        _service.UpdateRating(id, request.Rating);
+        return Ok();
+    }
 }

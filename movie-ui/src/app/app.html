@@ -45,6 +45,11 @@
 
         <p>🎭 {{ movie.genre }}</p>
 
+        <button class="edit-btn"
+                (click)="editRating(movie)">
+          ✏️ Edit Score
+        </button>
+
         <button class="delete-btn" (click)="deleteMovie(movie.id)">
           Delete
         </button>

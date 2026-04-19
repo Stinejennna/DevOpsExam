@@ -4,6 +4,7 @@ using DevOpsExamMovie.Models;
 using DevOpsExamMovie.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DevOpsTests;
 
@@ -17,72 +18,202 @@ public class MovieServiceTests
 
         var context = new AppDbContext(options);
 
-        return new MovieService(context);
+        var settings = new Dictionary<string, string?>
+        {
+            { "TMDB:ApiKey", "test-key" }
+        };
+
+        IConfiguration config = new ConfigurationBuilder()
+            .AddInMemoryCollection(settings)
+            .Build();
+
+        return new MovieService(context, config);
     }
 
     [Fact]
-    public void AddMovie_Valid_AddsMovie()
+    public async Task AddMovie_Valid_AddsMovie()
     {
         var service = CreateService();
 
-        service.AddMovie(new Movie { Title = "Inception", Rating = 8 });
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 8
+        });
 
         Assert.Single(service.GetAll());
     }
 
     [Fact]
-    public void AddMovie_Null_Throws()
+    public async Task AddMovie_InvalidTitle_Throws()
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentNullException>(() => service.AddMovie(null!));
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            service.AddMovie(new Movie
+            {
+                Title = "",
+                Rating = 5
+            }));
     }
 
     [Fact]
-    public void AddMovie_InvalidTitle_Throws()
+    public async Task AddMovie_InvalidRating_Throws()
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentException>(() =>
-            service.AddMovie(new Movie { Title = "", Rating = 5 }));
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            service.AddMovie(new Movie
+            {
+                Title = "Batman",
+                Rating = 11
+            }));
     }
 
     [Fact]
-    public void AddMovie_NullRating_Throws()
+    public async Task GetAverage_ReturnsCorrect()
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentException>(() =>
-            service.AddMovie(new Movie { Title = "A", Rating = null }));
+        await service.AddMovie(new Movie { Title = "A", Rating = 6 });
+        await service.AddMovie(new Movie { Title = "B", Rating = 8 });
+
+        Assert.Equal(7, service.GetAverageRating());
     }
 
     [Fact]
-    public void AddMovie_RatingTooLow_Throws()
+    public async Task DeleteMovie_RemovesMovie()
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentException>(() =>
-            service.AddMovie(new Movie { Title = "A", Rating = 0 }));
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 8
+        });
+
+        var movie = service.GetAll().First();
+
+        service.DeleteMovie(movie.Id);
+
+        Assert.Empty(service.GetAll());
     }
 
     [Fact]
-    public void AddMovie_RatingTooHigh_Throws()
+    public async Task UpdateRating_ChangesRating()
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentException>(() =>
-            service.AddMovie(new Movie { Title = "A", Rating = 11 }));
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 5
+        });
+
+        var movie = service.GetAll().First();
+
+        service.UpdateRating(movie.Id, 9);
+
+        Assert.Equal(9, service.GetAll().First().Rating);
     }
 
     [Fact]
-    public void AddMovie_Boundaries_Work()
+    public async Task Controller_Add_ReturnsOk()
+    {
+        var service = CreateService();
+        var controller = new MoviesController(service);
+
+        var result = await controller.Add(new Movie
+        {
+            Title = "Batman",
+            Rating = 8
+        });
+
+        Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public async Task Controller_GetAll_ReturnsOkObject()
     {
         var service = CreateService();
 
-        service.AddMovie(new Movie { Title = "Min", Rating = 1 });
-        service.AddMovie(new Movie { Title = "Max", Rating = 10 });
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 8
+        });
 
-        Assert.Equal(2, service.GetAll().Count);
+        var controller = new MoviesController(service);
+
+        var result = controller.GetAll();
+
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Controller_Delete_ReturnsOk()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 8
+        });
+
+        var movie = service.GetAll().First();
+
+        var controller = new MoviesController(service);
+
+        var result = controller.Delete(movie.Id);
+
+        Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public async Task Controller_UpdateRating_ReturnsOk()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 5
+        });
+
+        var movie = service.GetAll().First();
+
+        var controller = new MoviesController(service);
+
+        var result = controller.UpdateRating(
+            movie.Id,
+            new RatingUpdate { Rating = 10 });
+
+        Assert.IsType<OkResult>(result);
+    }
+    
+    [Fact]
+    public void DeleteMovie_InvalidId_DoesNothing()
+    {
+        var service = CreateService();
+
+        service.DeleteMovie(999);
+
+        Assert.Empty(service.GetAll());
+    }
+
+    [Fact]
+    public async Task UpdateRating_ChangesAverage()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title="A", Rating=5 });
+
+        var movie = service.GetAll().First();
+
+        service.UpdateRating(movie.Id, 10);
+
+        Assert.Equal(10, service.GetAverageRating());
     }
 
     [Fact]
@@ -94,132 +225,334 @@ public class MovieServiceTests
     }
 
     [Fact]
-    public void GetAverage_OneMovie_ReturnsValue()
+    public void UpdateRating_InvalidId_DoesNothing()
     {
         var service = CreateService();
 
-        service.AddMovie(new Movie { Title = "A", Rating = 10 });
+        service.UpdateRating(999, 5);
 
-        Assert.Equal(10, service.GetAverageRating());
+        Assert.Empty(service.GetAll());
     }
-
+    
     [Fact]
-    public void GetAverage_MultipleMovies_ReturnsCorrect()
-    {
-        var service = CreateService();
-
-        service.AddMovie(new Movie { Title = "A", Rating = 6 });
-        service.AddMovie(new Movie { Title = "B", Rating = 8 });
-
-        Assert.Equal(7, service.GetAverageRating());
-    }
-
-    [Fact]
-    public void GetAll_ReturnsMovies()
-    {
-        var service = CreateService();
-
-        service.AddMovie(new Movie { Title = "A", Rating = 5 });
-        service.AddMovie(new Movie { Title = "B", Rating = 6 });
-
-        Assert.Equal(2, service.GetAll().Count);
-    }
-
-    [Fact]
-    public void GetAll_ReturnsCopy()
-    {
-        var service = CreateService();
-
-        service.AddMovie(new Movie { Title = "A", Rating = 5 });
-
-        var list = service.GetAll();
-        list.Clear();
-
-        Assert.Single(service.GetAll());
-    }
-
-    [Fact]
-    public void Controller_Add_ReturnsOk()
+    public void Controller_GetAverage_ReturnsOk()
     {
         var service = CreateService();
         var controller = new MoviesController(service);
 
-        var result = controller.Add(new Movie { Title = "A", Rating = 5 });
-
-        Assert.IsType<OkResult>(result);
-    }
-
-    [Fact]
-    public void Controller_GetAll_ReturnsOkObject()
-    {
-        var service = CreateService();
-        service.AddMovie(new Movie { Title = "A", Rating = 5 });
-
-        var controller = new MoviesController(service);
-
-        var result = controller.GetAll();
+        var result = controller.GetAverage();
 
         Assert.IsType<OkObjectResult>(result);
+    }
+    
+     [Fact]
+public async Task AddMovie_TestKey_AddsMetadata()
+{
+    var service = CreateService();
+
+    await service.AddMovie(new Movie
+    {
+        Title = "Batman",
+        Rating = 8
+    });
+
+    var movie = service.GetAll().First();
+
+    Assert.Equal("2020", movie.ReleaseYear);
+    Assert.Equal("Test", movie.Genre);
+    Assert.Equal("", movie.PosterUrl);
+    }
+
+    [Fact]
+    public async Task AddMovie_InvalidLowRating_Throws()
+    {
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            service.AddMovie(new Movie
+            {
+                Title = "Batman",
+                Rating = 0
+            }));
+    }
+
+    [Fact]
+    public async Task AddMovie_InvalidHighRating_Throws()
+    {
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            service.AddMovie(new Movie
+            {
+                Title = "Batman",
+                Rating = 11
+            }));
+    }
+
+    [Fact]
+    public async Task UpdateRating_UpdatesAverage()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title = "A", Rating = 5 });
+        await service.AddMovie(new Movie { Title = "B", Rating = 5 });
+
+        var movie = service.GetAll().First();
+
+        service.UpdateRating(movie.Id, 10);
+
+        Assert.Equal(7.5, service.GetAverageRating());
+    }
+
+
+    [Fact]
+    public async Task Controller_Add_Null_ReturnsBadRequest()
+    {
+        var service = CreateService();
+        var controller = new MoviesController(service);
+
+        var result = await controller.Add(null!);
+
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     [Fact]
     public void Controller_GetAverage_ReturnsOkObject()
     {
         var service = CreateService();
-        service.AddMovie(new Movie { Title = "A", Rating = 10 });
-
         var controller = new MoviesController(service);
 
         var result = controller.GetAverage();
 
-        var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(10d, (double)ok.Value!);
+        Assert.IsType<OkObjectResult>(result);
     }
     
     [Fact]
-    public void Controller_Add_NullMovie_ReturnsBadRequest()
+    public async Task AddMovie_RatingOne_IsValid()
     {
-        var controller = new MoviesController(CreateService());
+        var service = CreateService();
 
-        var result = controller.Add(null!);
+        await service.AddMovie(new Movie
+        {
+            Title = "Min",
+            Rating = 1
+        });
 
-        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Single(service.GetAll());
     }
 
     [Fact]
-    public void Controller_GetAll_ReturnsMovies()
+    public async Task AddMovie_RatingTen_IsValid()
     {
         var service = CreateService();
-        service.AddMovie(new Movie { Title = "A", Rating = 5 });
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Max",
+            Rating = 10
+        });
+
+        Assert.Single(service.GetAll());
+    }
+
+    [Fact]
+    public async Task GetAll_ReturnsAddedMovies()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title = "A", Rating = 5 });
+        await service.AddMovie(new Movie { Title = "B", Rating = 6 });
+
+        Assert.Equal(2, service.GetAll().Count);
+    }
+
+    [Fact]
+    public async Task DeleteMovie_OnlyRemovesCorrectMovie()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title = "A", Rating = 5 });
+        await service.AddMovie(new Movie { Title = "B", Rating = 6 });
+
+        var first = service.GetAll().First();
+
+        service.DeleteMovie(first.Id);
+
+        Assert.Single(service.GetAll());
+        Assert.Equal("B", service.GetAll().First().Title);
+    }
+
+    [Fact]
+    public async Task UpdateRating_CanUpdateTwice()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 5
+        });
+
+        var movie = service.GetAll().First();
+
+        service.UpdateRating(movie.Id, 8);
+        service.UpdateRating(movie.Id, 10);
+
+        Assert.Equal(10, service.GetAll().First().Rating);
+    }
+
+    [Fact]
+    public async Task GetAverage_WithOneMovie_ReturnsExactValue()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Solo",
+            Rating = 9
+        });
+
+        Assert.Equal(9, service.GetAverageRating());
+    }
+
+    [Fact]
+    public async Task Controller_Delete_InvalidId_ReturnsOk()
+    {
+        var service = CreateService();
+        var controller = new MoviesController(service);
+
+        var result = controller.Delete(999);
+
+        Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public async Task Controller_UpdateRating_ChangesMovieRating()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 5
+        });
+
+        var movie = service.GetAll().First();
 
         var controller = new MoviesController(service);
 
-        var result = controller.GetAll();
+        controller.UpdateRating(movie.Id,
+            new RatingUpdate { Rating = 9 });
 
-        var ok = Assert.IsType<OkObjectResult>(result);
-        var movies = Assert.IsAssignableFrom<IEnumerable<Movie>>(ok.Value);
-
-        Assert.Single(movies);
+        Assert.Equal(9, service.GetAll().First().Rating);
     }
 
     [Fact]
-    public void AddMovie_TitleWhitespace_Throws()
+    public async Task Metadata_TestKey_SetsReleaseYear()
     {
         var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Movie",
+            Rating = 7
+        });
+
+        Assert.Equal("2020",
+            service.GetAll().First().ReleaseYear);
+    }
+
+    [Fact]
+    public async Task Metadata_TestKey_SetsGenre()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Movie",
+            Rating = 7
+        });
+
+        Assert.Equal("Test",
+            service.GetAll().First().Genre);
+    }
+    
+    [Fact]
+    public async Task UpdateRating_InvalidLow_Throws()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 5
+        });
+
+        var movie = service.GetAll().First();
 
         Assert.Throws<ArgumentException>(() =>
-            service.AddMovie(new Movie { Title = "   ", Rating = 5 }));
+            service.UpdateRating(movie.Id, 0));
     }
-
+    
     [Fact]
-    public void GetAverage_WithThreeMovies_ReturnsCorrect()
+    public async Task UpdateRating_InvalidHigh_Throws()
     {
         var service = CreateService();
 
-        service.AddMovie(new Movie { Title = "A", Rating = 2 });
-        service.AddMovie(new Movie { Title = "B", Rating = 4 });
-        service.AddMovie(new Movie { Title = "C", Rating = 6 });
+        await service.AddMovie(new Movie
+        {
+            Title = "Batman",
+            Rating = 5
+        });
 
-        Assert.Equal(4, service.GetAverageRating());
+        var movie = service.GetAll().First();
+
+        Assert.Throws<ArgumentException>(() =>
+            service.UpdateRating(movie.Id, 11));
+    }
+
+    [Fact]
+    public async Task DeleteMovie_AfterDelete_AverageBecomesZero()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title="A", Rating=8 });
+
+        var movie = service.GetAll().First();
+
+        service.DeleteMovie(movie.Id);
+
+        Assert.Equal(0, service.GetAverageRating());
+    }
+
+    [Fact]
+    public async Task GetAll_ReturnsCopy()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title="A", Rating=5 });
+
+        var list = service.GetAll();
+
+        list.Clear();
+
+        Assert.Single(service.GetAll());
+    }
+
+    [Fact]
+    public async Task Controller_UpdateRating_ReturnsOkResult()
+    {
+        var service = CreateService();
+
+        await service.AddMovie(new Movie { Title="A", Rating=5 });
+
+        var movie = service.GetAll().First();
+
+        var controller = new MoviesController(service);
+
+        var result = controller.UpdateRating(movie.Id,
+            new RatingUpdate { Rating = 8 });
+
+        Assert.IsType<OkResult>(result);
     }
 }

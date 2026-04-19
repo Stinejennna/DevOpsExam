@@ -94,6 +94,7 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
   gap: 24px;
+  margin-top: 10px;
 }
 
 .movie-card {
@@ -103,6 +104,7 @@ button:hover {
   padding: 18px;
   transition: 0.25s;
   border: 1px solid #2a2a2a;
+  margin-top: 10px;
 }
 
 .movie-card:hover {
@@ -135,6 +137,7 @@ button:hover {
   font-family: 'Inter', sans-serif;
   margin: 0;
   color: white;
+  margin-bottom: 10px;
 }
 
 .green { color: #46d369 !important; }
@@ -184,6 +187,19 @@ button:hover {
   }
 
   .sort-tabs button:hover {
+    border-color: #e50914;
+    background: #2a2a2a;
+  }
+
+  .edit-btn {
+    margin-top: 12px;
+    width: 100%;
+    background: #1f1f1f;
+    border: 1px solid #444;
+    color: white;
+  }
+
+  .edit-btn:hover {
     border-color: #e50914;
     background: #2a2a2a;
   }

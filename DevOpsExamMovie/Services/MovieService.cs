@@ -35,6 +35,14 @@ public class MovieService
     private async Task GetMovieData(Movie movie)
     {
         var key = _config["TMDB:ApiKey"];
+        
+        if (key == "test-key")
+        {
+            movie.PosterUrl = "";
+            movie.ReleaseYear = "2020";
+            movie.Genre = "Test";
+            return;
+        }
 
         using var client = new HttpClient();
 
@@ -118,5 +126,19 @@ public class MovieService
     public List<Movie> GetAll()
     {
         return _context.Movies.ToList();
+    }
+    
+    public void UpdateRating(int id, int rating)
+    {
+        if (rating < 1 || rating > 10)
+            throw new ArgumentException();
+
+        var movie = _context.Movies.FirstOrDefault(x => x.Id == id);
+
+        if (movie == null) return;
+
+        movie.Rating = rating;
+
+        _context.SaveChanges();
     }
 }

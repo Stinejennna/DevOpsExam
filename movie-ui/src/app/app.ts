@@ -77,34 +77,62 @@ export class AppComponent implements OnInit {
   }
 
   filteredMovies() {
-    let filtered = this.movies.filter((movie: any) =>
+    let filtered = [...this.movies];
+
+    filtered = filtered.filter(movie =>
       movie.title.toLowerCase().includes(this.searchText.toLowerCase())
     );
 
     switch (this.sortOption) {
       case 'ratingHigh':
-        return filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
 
       case 'ratingLow':
-        return filtered.sort((a, b) => a.rating - b.rating);
+        filtered.sort((a, b) => a.rating - b.rating);
+        break;
 
       case 'az':
-        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        break;
 
       case 'za':
-        return filtered.sort((a, b) => b.title.localeCompare(a.title));
+        filtered.sort((a, b) => b.title.localeCompare(a.title));
+        break;
 
       case 'oldest':
-        return filtered.sort((a, b) => a.id - b.id);
+        filtered.sort((a, b) => a.id - b.id);
+        break;
 
       default:
-        return filtered.sort((a, b) => b.id - a.id);
+        filtered.sort((a, b) => b.id - a.id);
+        break;
     }
+
+    return filtered;
   }
 
   ratingClass(rating: number) {
     if (rating >= 8) return 'green';
     if (rating >= 5) return 'yellow';
     return 'red';
+  }
+
+  editRating(movie: any) {
+    const input = prompt("New rating (1-10):", movie.rating);
+
+    if (!input) return;
+
+    const rating = Number(input);
+
+    this.http.put(
+      `${this.apiUrl}/${movie.id}/rating`,
+      { rating: rating }
+    ).subscribe({
+      next: () => {
+        this.refreshData();
+      },
+      error: err => console.error(err)
+    });
   }
 }
