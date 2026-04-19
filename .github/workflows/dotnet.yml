@@ -92,15 +92,18 @@ jobs:
             docker compose pull
             docker compose up -d
 
-        - name: Run K6 test
-          uses: grafana/run-k6-action@v1
-          with:
-            path: k6-test.js
+      - name: Wait for startup
+        run: sleep 15
 
-        - name: Run E2E test
-          run: |
-           curl -X POST http://YOUR_SERVER_IP:8000/api/movies \
-                -H "Content-Type: application/json" \
-                -d '{"title":"Batman","rating":8}'
-                  
-          curl http://YOUR_SERVER_IP:8000/api/movies
+      - name: Run K6 test
+        uses: grafana/run-k6-action@v1
+        with:
+          path: k6-test.js
+
+      - name: Run E2E test
+        run: |
+          curl -X POST http://185.196.21.234:8000/api/movies \
+            -H "Content-Type: application/json" \
+            -d '{"title":"Batman","rating":8}'
+
+          curl http://185.196.21.234:8000/api/movies
