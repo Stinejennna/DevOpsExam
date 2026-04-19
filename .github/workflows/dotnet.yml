@@ -30,6 +30,30 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
+        
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Build and push Docker image
+        run: |
+          docker build \
+          -t ghcr.io/stinejennna/devops-exam:staging \
+          -t ghcr.io/stinejennna/devops-exam:latest \
+          -f ./src/DevOpsExam/Dockerfile \
+          docker push ghcr.io/stinejennna --all-tags
+          
+      - name: Create release notes
+        uses: ncipollo/release-action@v1
+        with: 
+          tag: ${{ steps.get_version.outputs.VERSION }}
+          generateReleaseNotes: true
+          body: |
+            This release includes the following container image:
+            ghcr.io/stinejennna/devops-exam:latest 
 
       - name: Begin SonarQube analysis
         run: |
