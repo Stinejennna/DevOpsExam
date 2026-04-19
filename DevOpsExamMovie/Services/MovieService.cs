@@ -11,8 +11,7 @@ public class MovieService
 
     public void AddMovie(Movie movie)
     {
-        if (movie == null)
-            throw new ArgumentNullException(nameof(movie));
+        ArgumentNullException.ThrowIfNull(movie);
 
         if (string.IsNullOrWhiteSpace(movie.Title))
             throw new ArgumentException("Title is required");
@@ -25,8 +24,7 @@ public class MovieService
 
     public double GetAverageRating()
     {
-        if (!_movies.Any())
-            return 0;
+        if (_movies.Count == 0);
 
         return _movies.Average(m => m.Rating);
     }
