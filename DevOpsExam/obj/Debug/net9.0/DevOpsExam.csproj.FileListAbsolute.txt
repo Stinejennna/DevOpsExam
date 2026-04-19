@@ -5,6 +5,7 @@ C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\obj\Debug\net9.0\DevOpsExam.A
 C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\bin\Debug\net9.0\DevOpsExam.dll
 C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\bin\Debug\net9.0\DevOpsExam.pdb
 C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\obj\Debug\net9.0\DevOpsExam.csproj.CoreCompileInputs.cache
+C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\obj\Debug\net9.0\DevOpsExam.sourcelink.json
 C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\obj\Debug\net9.0\DevOpsExam.dll
 C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\obj\Debug\net9.0\refint\DevOpsExam.dll
 C:\Users\cakao\RiderProjects\DevOpsExam\DevOpsExam\obj\Debug\net9.0\DevOpsExam.pdb

@@ -1,28 +1,116 @@
-﻿name: .NET CI
+﻿name: .NET CI + SonarQube + Deploy
 
 on:
   push:
     branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          dotnet-version: 8.0.x
+          fetch-depth: 0
 
-      - run: dotnet restore
-      - run: dotnet build --no-restore
-      - run: dotnet test --collect:"XPlat Code Coverage"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
-      - name: Install Stryker
-        run: dotnet tool install -g dotnet-stryker
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Add tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Begin SonarQube analysis
+        run: |
+          dotnet sonarscanner begin \
+            /k:"MovieRater" \
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release
+
+      - name: Restore tools
+        run: dotnet tool restore
 
       - name: Run mutation tests
+        run: dotnet stryker
+
+      - name: End SonarQube analysis
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
         run: |
-          cd DevOps.Tests
-          dotnet stryker
+          docker build \
+            -t ghcr.io/stinejennna/devops-exam:staging \
+            -f ./DevOpsExamMovie/Dockerfile \
+            .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/stinejennna/devops-exam:staging
+
+      - name: Copy docker-compose to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.STAGING_SERVER_IP }}
+          username: ${{ vars.STAGING_SERVER_USERNAME }}
+          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+          source: docker-compose.yaml
+          target: /root/dowa
+
+      - name: Deploy to Contabo
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ vars.STAGING_SERVER_IP }}
+          username: ${{ vars.STAGING_SERVER_USERNAME }}
+          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+          script: |
+            mkdir -p /root/dowa
+            cd /root/dowa
+            docker compose pull
+            docker compose up -d
+
+      - name: Wait for startup
+        run: sleep 15
+
+      - name: Run E2E test
+        run: |
+          curl --fail -X POST http://185.196.21.234:8000/api/movies \
+            -H "Content-Type: application/json" \
+            -d '{"title":"Batman","rating":8}'
+
+          curl --fail http://185.196.21.234:8000/api/movies
+
+      - name: Install K6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg ca-certificates
+          curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run K6 test
+        run: k6 run k6-test.js
