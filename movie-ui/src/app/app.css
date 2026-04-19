@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #141414;
+  font-family: 'Inter', sans-serif;
+  color: white;
+}
+
+.container {
+  background: #141414;
+}
+
+.minicontainer {
+  max-width: 1200px;
+  margin: auto;
+  padding: 50px 30px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 54px;
+  color: #e50914;
+  margin-bottom: 35px;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-box,
+.search-box {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.search-box input {
+  width: 100%;
+}
+
+input {
+  flex: 1;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #222;
+  color: white;
+  font-size: 16px;
+}
+
+input::placeholder {
+  color: white;
+  opacity: 0.7;
+}
+
+input:focus {
+  outline: none;
+  border-color: #e50914;
+}
+
+button {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 8px;
+  background: #e50914;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #f6121d;
+  transform: translateY(-2px);
+}
+
+.average-box {
+  background: #1c1c1c;
+  border: 1px solid #2c2c2c;
+  padding: 22px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+  gap: 24px;
+}
+
+.movie-card {
+  background: #1b1b1b;
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 18px;
+  transition: 0.25s;
+  border: 1px solid #2a2a2a;
+}
+
+.movie-card:hover {
+  transform: scale(1.04);
+  border-color: #e50914;
+  box-shadow: 0 20px 30px rgba(0,0,0,.45);
+}
+
+.poster {
+  height: 160px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  background:
+    linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.65)),
+    url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.movie-card h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: white;
+}
+
+.movie-card p {
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  color: white;
+}
+
+.green { color: #46d369 !important; }
+.yellow { color: #ffd54f !important; }
+.red { color: #ff5252 !important; }
+
+.delete-btn {
+  margin-top: 15px;
+  width: 100%;
+  background: #333;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #e50914;
+}
+
+@media (max-width: 700px) {
+  .form-box {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 38px;
+    font-family: 'Inter', sans-serif;
+  }
+}

@@ -16,12 +16,13 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add([FromBody] Movie movie)
+    public async Task<IActionResult> Add([FromBody] Movie movie)
     {
         if (movie is null)
             return BadRequest("Movie cannot be null");
 
-        _service.AddMovie(movie);
+        await _service.AddMovie(movie);
+
         return Ok();
     }
 
@@ -35,5 +36,12 @@ public class MoviesController : ControllerBase
     public IActionResult GetAverage()
     {
         return Ok(_service.GetAverageRating());
+    }
+    
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        _service.DeleteMovie(id);
+        return Ok();
     }
 }

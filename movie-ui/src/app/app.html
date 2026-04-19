@@ -1,0 +1,48 @@
+<div class="container">
+  <div class="minicontainer">
+
+    <h1>🎬 MovieVault</h1>
+
+    <div class="form-box">
+      <input [(ngModel)]="title" placeholder="Movie title">
+      <input [(ngModel)]="rating" type="number" min="1" max="10">
+      <button (click)="addMovie()">Add Movie</button>
+    </div>
+
+    <div class="search-box">
+      <input [(ngModel)]="searchText" placeholder="🔍 Search movies...">
+    </div>
+
+    <div class="average-box">
+      ⭐ Average Rating: {{ average | number:'1.2-2' }}
+    </div>
+
+    <div class="movie-grid">
+
+      <div class="movie-card"
+           *ngFor="let movie of filteredMovies()">
+
+        <div class="poster"
+             [style.background-image]="'url(' + movie.posterUrl + ')'">
+        </div>
+
+        <h3>{{ movie.title }}</h3>
+
+        <p [ngClass]="ratingClass(movie.rating)">
+          ⭐ {{ movie.rating }}/10
+        </p>
+
+        <p>📅 {{ movie.releaseYear }}</p>
+
+        <p>🎭 {{ movie.genre }}</p>
+
+        <button class="delete-btn" (click)="deleteMovie(movie.id)">
+          Delete
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

@@ -29,8 +29,17 @@ namespace DevOpsExamMovie.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Genre")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PosterUrl")
+                        .HasColumnType("text");
+
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ReleaseYear")
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
