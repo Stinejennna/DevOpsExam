@@ -1,13 +1,17 @@
-﻿namespace DevOpsExamMovie.Services;
+﻿using DevOpsExamMovie.Data;
+using DevOpsExamMovie.Models;
+using Microsoft.EntityFrameworkCore;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Models;
+namespace DevOpsExamMovie.Services;
 
 public class MovieService
 {
-    private readonly List<Movie> _movies = new();
+    private readonly AppDbContext _context;
+
+    public MovieService(AppDbContext context)
+    {
+        _context = context;
+    }
 
     public void AddMovie(Movie movie)
     {
@@ -19,19 +23,20 @@ public class MovieService
         if (movie.Rating is null || movie.Rating < 1 || movie.Rating > 10)
             throw new ArgumentException("Rating must be between 1 and 10");
 
-        _movies.Add(movie);
+        _context.Movies.Add(movie);
+        _context.SaveChanges();
     }
 
     public double GetAverageRating()
     {
-        if (_movies.Count == 0)
+        if (!_context.Movies.Any())
             return 0;
 
-        return _movies.Average(m => m.Rating!.Value);
+        return _context.Movies.Average(m => m.Rating!.Value);
     }
 
     public List<Movie> GetAll()
     {
-        return _movies.ToList();
+        return _context.Movies.ToList();
     }
 }
