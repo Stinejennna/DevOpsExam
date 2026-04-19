@@ -24,7 +24,8 @@ public class MovieService
 
     public double GetAverageRating()
     {
-        if (_movies.Count == 0);
+        if (_movies.Count == 0)
+            return 0;
 
         return _movies.Average(m => m.Rating);
     }
