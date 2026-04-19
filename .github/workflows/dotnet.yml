@@ -1,13 +1,11 @@
-﻿name: .NET CI + SonarQube
+﻿name: .NET CI + SonarQube + Deploy
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-    
+
 permissions:
-  contents: write
+  contents: read
   packages: write
 
 jobs:
@@ -15,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -34,56 +31,63 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
-        
-      - name: Log in to GHCR
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build Docker image
-        run: |
-          docker build \
-            -t ghcr.io/stinejennna/devops-exam:staging \
-            -t ghcr.io/stinejennna/devops-exam:latest \
-            -f ./DevOpsExamMovie/Dockerfile \
-            .
-
-      - name: Push Docker images
-        run: |
-          docker push ghcr.io/stinejennna/devops-exam:staging
-          docker push ghcr.io/stinejennna/devops-exam:latest
-          
-      - name: Create release notes
-        uses: ncipollo/release-action@v1
-        with: 
-          tag: v1.0.${{ github.run_number }}
-          name: Release v1.0.${{ github.run_number }}
-          generateReleaseNotes: true
-          body: |
-            This release includes the following container image:
-            ghcr.io/stinejennna/devops-exam:latest 
 
       - name: Begin SonarQube analysis
         run: |
           dotnet sonarscanner begin \
             /k:"MovieRater" \
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests with coverage
-        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release
 
-      - name: Restore local tools
+      - name: Restore tools
         run: dotnet tool restore
 
-      - name: Run mutation tests (Stryker)
+      - name: Run mutation tests
         run: dotnet stryker
 
       - name: End SonarQube analysis
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/stinejennna/devops-exam:staging \
+            -f ./DevOpsExamMovie/Dockerfile \
+            .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/stinejennna/devops-exam:staging
+
+      - name: Copy docker-compose to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.STAGING_SERVER_IP }}
+          username: ${{ vars.STAGING_SERVER_USERNAME }}
+          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+          source: docker-compose.yaml
+          target: /root/dowa
+
+      - name: Deploy to Contabo
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ vars.STAGING_SERVER_IP }}
+          username: ${{ vars.STAGING_SERVER_USERNAME }}
+          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+          script: |
+            mkdir -p /root/dowa
+            cd /root/dowa
+            docker compose pull
+            docker compose up -d
