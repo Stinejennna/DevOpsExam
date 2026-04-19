@@ -11,6 +11,15 @@
 
     <div class="search-box">
       <input [(ngModel)]="searchText" placeholder="🔍 Search movies...">
+
+      <div class="sort-tabs">
+        <button (click)="sortOption='newest'">Newest</button>
+        <button (click)="sortOption='oldest'">Oldest</button>
+        <button (click)="sortOption='ratingHigh'">Top Rated</button>
+        <button (click)="sortOption='ratingLow'">Lowest</button>
+        <button (click)="sortOption='az'">A-Z</button>
+        <button (click)="sortOption='za'">Z-A</button>
+      </div>
     </div>
 
     <div class="average-box">

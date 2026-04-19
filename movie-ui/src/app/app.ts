@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   average = 0;
 
   searchText = '';
+  sortOption = 'newest';
 
   constructor(
     private http: HttpClient,
@@ -76,9 +77,29 @@ export class AppComponent implements OnInit {
   }
 
   filteredMovies() {
-    return this.movies.filter((movie: any) =>
+    let filtered = this.movies.filter((movie: any) =>
       movie.title.toLowerCase().includes(this.searchText.toLowerCase())
     );
+
+    switch (this.sortOption) {
+      case 'ratingHigh':
+        return filtered.sort((a, b) => b.rating - a.rating);
+
+      case 'ratingLow':
+        return filtered.sort((a, b) => a.rating - b.rating);
+
+      case 'az':
+        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+
+      case 'za':
+        return filtered.sort((a, b) => b.title.localeCompare(a.title));
+
+      case 'oldest':
+        return filtered.sort((a, b) => a.id - b.id);
+
+      default:
+        return filtered.sort((a, b) => b.id - a.id);
+    }
   }
 
   ratingClass(rating: number) {
