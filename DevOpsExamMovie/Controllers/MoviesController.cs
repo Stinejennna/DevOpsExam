@@ -16,8 +16,11 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add(Movie movie)
+    public IActionResult Add([FromBody] Movie movie)
     {
+        if (movie is null)
+            return BadRequest("Movie cannot be null");
+
         _service.AddMovie(movie);
         return Ok();
     }

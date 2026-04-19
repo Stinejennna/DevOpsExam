@@ -32,6 +32,6 @@ public class MovieService
 
     public List<Movie> GetAll()
     {
-        return _movies;
+        return _movies.ToList();
     }
 }
