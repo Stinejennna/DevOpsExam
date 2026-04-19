@@ -58,7 +58,8 @@ jobs:
       - name: Create release notes
         uses: ncipollo/release-action@v1
         with: 
-          tag: ${{ steps.get_version.outputs.VERSION }}
+          tag: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
           generateReleaseNotes: true
           body: |
             This release includes the following container image:
