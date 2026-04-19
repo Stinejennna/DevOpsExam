@@ -201,6 +201,9 @@ public class MovieServiceTests
         var result = controller.GetAverage();
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(10, ok.Value);
+
+        var value = Assert.IsType<double>(ok.Value);
+
+        Assert.Equal(10, value);
     }
 }
