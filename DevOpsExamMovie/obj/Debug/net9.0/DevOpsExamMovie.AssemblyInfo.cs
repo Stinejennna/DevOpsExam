@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DevOpsExamMovie")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b99edb037489f02599c4a1f233596b18a1cc5106")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+77bcd54895e7ed21af114ea83207acd948d551b4")]
 [assembly: System.Reflection.AssemblyProductAttribute("DevOpsExamMovie")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DevOpsExamMovie")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
