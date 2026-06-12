@@ -10,7 +10,7 @@ namespace DevOpsTests;
 
 public class MovieServiceTests
 {
-    private MovieService CreateService()
+    private static MovieService CreateService()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -123,7 +123,7 @@ public class MovieServiceTests
         var service = CreateService();
         var controller = new MoviesController(service);
 
-        var result = await controller.Add(new Movie
+        var result = await controller.Add(new CreateMovieRequest
         {
             Title = "Batman",
             Rating = 8

@@ -24,8 +24,8 @@ export class AppComponent implements OnInit {
   sortOption = 'newest';
 
   constructor(
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private readonly http: HttpClient,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
