@@ -3,6 +3,7 @@
 using DevOpsExamMovie.Models;
 using DevOpsExamMovie.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 [ApiController]
 [Route("api/movies")]
@@ -16,10 +17,16 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Movie movie)
+    public async Task<IActionResult> Add([FromBody] CreateMovieRequest request)
     {
-        if (movie is null)
-            return BadRequest("Movie cannot be null");
+        var movie = new Movie
+        {
+            Title = request.Title,
+            Rating = request.Rating,
+            PosterUrl = request.PosterUrl,
+            ReleaseYear = request.ReleaseYear,
+            Genre = request.Genre
+        };
 
         await _service.AddMovie(movie);
 

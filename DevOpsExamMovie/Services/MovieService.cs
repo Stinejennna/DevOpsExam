@@ -96,7 +96,7 @@ public class MovieService
         _context.SaveChanges();
     }
     
-    private string GetGenreName(int id)
+    private static string GetGenreName(int id)
     {
         return id switch
         {
@@ -131,7 +131,7 @@ public class MovieService
     public void UpdateRating(int id, int rating)
     {
         if (rating < 1 || rating > 10)
-            throw new ArgumentException();
+            throw new ArgumentOutOfRangeException(nameof(rating), "Rating must be between 1 and 10.");
 
         var movie = _context.Movies.FirstOrDefault(x => x.Id == id);
 

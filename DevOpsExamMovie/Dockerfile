@@ -11,11 +11,11 @@ COPY ["DevOpsExamMovie/DevOpsExamMovie.csproj", "DevOpsExamMovie/"]
 RUN dotnet restore "DevOpsExamMovie/DevOpsExamMovie.csproj"
 COPY . .
 WORKDIR "/src/DevOpsExamMovie"
-RUN dotnet build "./DevOpsExamMovie.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./DevOpsExamMovie.csproj" -c "$BUILD_CONFIGURATION" -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./DevOpsExamMovie.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./DevOpsExamMovie.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
