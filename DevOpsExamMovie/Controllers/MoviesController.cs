@@ -17,8 +17,11 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] CreateMovieRequest request)
+    public async Task<IActionResult> Add([FromBody] CreateMovieRequest? request)
     {
+        if (request == null)
+            return BadRequest("Movie cannot be null");
+
         var movie = new Movie
         {
             Title = request.Title,

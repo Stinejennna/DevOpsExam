@@ -131,7 +131,7 @@ public class MovieService
     public void UpdateRating(int id, int rating)
     {
         if (rating < 1 || rating > 10)
-            throw new ArgumentOutOfRangeException(nameof(rating), "Rating must be between 1 and 10.");
+            throw new ArgumentException("Rating must be between 1 and 10.", nameof(rating));
 
         var movie = _context.Movies.FirstOrDefault(x => x.Id == id);
 
