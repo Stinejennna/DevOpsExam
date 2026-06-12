@@ -68,6 +68,7 @@ jobs:
         run: |
           docker build \
             -t ghcr.io/stinejennna/devops-exam:${{ github.ref_name }} \
+            -t ghcr.io/stinejennna/devops-exam:latest \
             -f ./DevOpsExamMovie/Dockerfile \
             .
 
