@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsTests\\DevOpsTests.csproj": {}
+    "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsTests/DevOpsTests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj": {
+    "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsExamMovie/DevOpsExamMovie.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj",
+        "projectUniqueName": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsExamMovie/DevOpsExamMovie.csproj",
         "projectName": "DevOpsExamMovie",
-        "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj",
-        "packagesPath": "C:\\Users\\cakao\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\obj\\",
+        "projectPath": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsExamMovie/DevOpsExamMovie.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsExamMovie/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\cakao\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -24,6 +24,7 @@
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {}
           }
@@ -38,10 +39,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "Microsoft.AspNetCore.OpenApi": {
@@ -86,21 +88,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsTests\\DevOpsTests.csproj": {
+    "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsTests/DevOpsTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsTests\\DevOpsTests.csproj",
+        "projectUniqueName": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsTests/DevOpsTests.csproj",
         "projectName": "DevOpsTests",
-        "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsTests\\DevOpsTests.csproj",
-        "packagesPath": "C:\\Users\\cakao\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsTests\\obj\\",
+        "projectPath": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsTests/DevOpsTests.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsTests/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\cakao\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -110,10 +112,11 @@
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj": {
-                "projectPath": "C:\\Users\\cakao\\RiderProjects\\DevOpsExam\\DevOpsExamMovie\\DevOpsExamMovie.csproj"
+              "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsExamMovie/DevOpsExamMovie.csproj": {
+                "projectPath": "/home/runner/work/DevOpsExam/DevOpsExam/DevOpsExamMovie/DevOpsExamMovie.csproj"
               }
             }
           }
@@ -128,10 +131,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
@@ -187,7 +191,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

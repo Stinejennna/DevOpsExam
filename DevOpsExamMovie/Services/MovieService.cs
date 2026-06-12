@@ -19,17 +19,22 @@ public class MovieService
     public async Task AddMovie(Movie movie)
     {
         ArgumentNullException.ThrowIfNull(movie);
-
-        if (string.IsNullOrWhiteSpace(movie.Title))
-            throw new ArgumentException("Title is required");
-
-        if (movie.Rating is null || movie.Rating < 1 || movie.Rating > 10)
-            throw new ArgumentException("Rating must be between 1 and 10");
-
+        ValidateMovie(movie);
         await GetMovieData(movie);
 
         _context.Movies.Add(movie);
         await _context.SaveChangesAsync();
+    }
+
+    private static void ValidateMovie(Movie movie)
+    {
+        if (string.IsNullOrWhiteSpace(movie.Title))
+            throw new ArgumentException("Title is required");
+
+        if (movie.Rating is null)
+            throw new ArgumentException("Rating is required");
+
+        ValidateRating(movie.Rating.Value);
     }
 
     private async Task GetMovieData(Movie movie)
@@ -38,62 +43,69 @@ public class MovieService
         
         if (key == "test-key")
         {
-            movie.PosterUrl = "";
-            movie.ReleaseYear = "2020";
-            movie.Genre = "Test";
+            SetTestMovieData(movie);
             return;
         }
 
         using var client = new HttpClient();
-
-        var url =
-            $"https://api.themoviedb.org/3/search/movie?api_key={key}&query={movie.Title}";
-
+        var url = $"https://api.themoviedb.org/3/search/movie?api_key={key}&query={movie.Title}";
         var json = await client.GetStringAsync(url);
 
         using JsonDocument doc = JsonDocument.Parse(json);
-
         var results = doc.RootElement.GetProperty("results");
 
         if (results.GetArrayLength() == 0)
         {
-            movie.PosterUrl = "https://via.placeholder.com/300x450?text=No+Poster";
-            movie.ReleaseYear = "-";
-            movie.Genre = "Unknown";
+            SetNoResultsMovieData(movie);
             return;
         }
 
-        var first = results[0];
+        ExtractMovieDataFromResult(movie, results[0]);
+    }
 
-        var posterPath = first.GetProperty("poster_path").GetString();
+    private static void SetTestMovieData(Movie movie)
+    {
+        movie.PosterUrl = "";
+        movie.ReleaseYear = "2020";
+        movie.Genre = "Test";
+    }
 
-        movie.PosterUrl =
-            string.IsNullOrEmpty(posterPath)
-                ? "https://via.placeholder.com/300x450?text=No+Poster"
-                : $"https://image.tmdb.org/t/p/w500{posterPath}";
+    private static void SetNoResultsMovieData(Movie movie)
+    {
+        const string placeholderUrl = "https://via.placeholder.com/300x450?text=No+Poster";
+        movie.PosterUrl = placeholderUrl;
+        movie.ReleaseYear = "-";
+        movie.Genre = "Unknown";
+    }
 
-        var releaseDate = first.GetProperty("release_date").GetString();
+    private static void ExtractMovieDataFromResult(Movie movie, JsonElement result)
+    {
+        var posterPath = result.GetProperty("poster_path").GetString();
+        const string placeholderUrl = "https://via.placeholder.com/300x450?text=No+Poster";
 
-        movie.ReleaseYear =
-            string.IsNullOrWhiteSpace(releaseDate)
-                ? "-"
-                : releaseDate.Substring(0, 4);
+        movie.PosterUrl = string.IsNullOrEmpty(posterPath)
+            ? placeholderUrl
+            : $"https://image.tmdb.org/t/p/w500{posterPath}";
 
-        var genreIds = first.GetProperty("genre_ids");
+        var releaseDate = result.GetProperty("release_date").GetString();
+        movie.ReleaseYear = string.IsNullOrWhiteSpace(releaseDate)
+            ? "-"
+            : releaseDate[..4];
 
+        var genreIds = result.GetProperty("genre_ids");
         movie.Genre = genreIds.GetArrayLength() > 0
             ? GetGenreName(genreIds[0].GetInt32())
             : "Unknown";
     }
 
-    public void DeleteMovie(int id)
+    public async Task DeleteMovie(int id)
     {
-        var movie = _context.Movies.FirstOrDefault(x => x.Id == id);
+        var movie = await _context.Movies.FirstOrDefaultAsync(x => x.Id == id);
 
-        if (movie == null) return;
+        if (movie is null) return;
 
         _context.Movies.Remove(movie);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
     
     private static string GetGenreName(int id)
@@ -116,29 +128,34 @@ public class MovieService
         };
     }
 
-    public double GetAverageRating()
+    public async Task<double> GetAverageRating()
     {
-        if (!_context.Movies.Any()) return 0;
+        var hasMovies = await _context.Movies.AnyAsync();
+        if (!hasMovies) return 0;
 
-        return _context.Movies.Average(x => x.Rating!.Value);
+        return await _context.Movies.AverageAsync(x => x.Rating!.Value);
     }
 
-    public List<Movie> GetAll()
+    public async Task<List<Movie>> GetAll()
     {
-        return _context.Movies.ToList();
+        return await _context.Movies.ToListAsync();
     }
     
-    public void UpdateRating(int id, int rating)
+    public async Task UpdateRating(int id, int rating)
+    {
+        ValidateRating(rating);
+
+        var movie = await _context.Movies.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (movie is null) return;
+
+        movie.Rating = rating;
+        await _context.SaveChangesAsync();
+    }
+
+    private static void ValidateRating(int rating)
     {
         if (rating < 1 || rating > 10)
             throw new ArgumentException("Rating must be between 1 and 10.", nameof(rating));
-
-        var movie = _context.Movies.FirstOrDefault(x => x.Id == id);
-
-        if (movie == null) return;
-
-        movie.Rating = rating;
-
-        _context.SaveChanges();
     }
 }

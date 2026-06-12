@@ -19,7 +19,7 @@ public class MoviesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateMovieRequest? request)
     {
-        if (request == null)
+        if (request is null)
             return BadRequest("Movie cannot be null");
 
         var movie = new Movie
@@ -37,28 +37,28 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        return Ok(_service.GetAll());
+        return Ok(await _service.GetAll());
     }
 
     [HttpGet("average")]
-    public IActionResult GetAverage()
+    public async Task<IActionResult> GetAverage()
     {
-        return Ok(_service.GetAverageRating());
+        return Ok(await _service.GetAverageRating());
     }
-    
+
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        _service.DeleteMovie(id);
+        await _service.DeleteMovie(id);
         return Ok();
     }
-    
+
     [HttpPut("{id}/rating")]
-    public IActionResult UpdateRating(int id, [FromBody] RatingUpdate request)
+    public async Task<IActionResult> UpdateRating(int id, [FromBody] RatingUpdate request)
     {
-        _service.UpdateRating(id, request.Rating);
+        await _service.UpdateRating(id, request.Rating);
         return Ok();
     }
 }
