@@ -4,6 +4,7 @@
 **/.gitignore
 **/.project
 **/.settings
+**/secrets*
 **/.toolstarget
 **/.vs
 **/.vscode
@@ -21,9 +22,11 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+**/appsettings*.json
 bin/
 obj/
 .git/
+.git
 .vscode/
 *.user
 *.suo
