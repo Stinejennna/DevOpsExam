@@ -58,7 +58,10 @@ public class MoviesController : ControllerBase
     [HttpPut("{id}/rating")]
     public IActionResult UpdateRating(int id, [FromBody] RatingUpdate request)
     {
-        _service.UpdateRating(id, request.Rating);
+        if (!request.Rating.HasValue)
+            return BadRequest("Rating is required.");
+
+        _service.UpdateRating(id, request.Rating.Value);
         return Ok();
     }
 }

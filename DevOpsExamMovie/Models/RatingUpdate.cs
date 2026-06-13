@@ -1,6 +1,10 @@
-﻿namespace DevOpsExamMovie.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DevOpsExamMovie.Models;
 
 public class RatingUpdate
 {
-    public int Rating { get; set; }
+    [Required]
+    [Range(1, 10)]
+    public int? Rating { get; set; }
 }
