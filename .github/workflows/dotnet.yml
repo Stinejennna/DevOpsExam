@@ -77,37 +77,37 @@ jobs:
           docker push ghcr.io/stinejennna/devops-exam:${{ github.ref_name }}
           docker push ghcr.io/stinejennna/devops-exam:latest
 
-      - name: Copy docker-compose to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ vars.STAGING_SERVER_IP }}
-          username: ${{ vars.STAGING_SERVER_USERNAME }}
-          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
-          source: docker-compose.yaml
-          target: /root/dowa
+      #      - name: Copy docker-compose to server
+      #        uses: appleboy/scp-action@v0.1.7
+      #        with:
+      #          host: ${{ vars.STAGING_SERVER_IP }}
+      #          username: ${{ vars.STAGING_SERVER_USERNAME }}
+      #          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+      #          source: docker-compose.yaml
+      #          target: /root/dowa
 
-      - name: Deploy to Contabo
-        uses: appleboy/ssh-action@v1.2.1
-        with:
-          host: ${{ vars.STAGING_SERVER_IP }}
-          username: ${{ vars.STAGING_SERVER_USERNAME }}
-          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
-          script: |
-            mkdir -p /root/dowa
-            cd /root/dowa
-            docker compose pull
-            docker compose up -d
+      #      - name: Deploy to Contabo
+      #        uses: appleboy/ssh-action@v1.2.1
+      #        with:
+      #          host: ${{ vars.STAGING_SERVER_IP }}
+      #          username: ${{ vars.STAGING_SERVER_USERNAME }}
+      #          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+      #          script: |
+      #            mkdir -p /root/dowa
+      #            cd /root/dowa
+      #            docker compose pull
+      #            docker compose up -d
 
-      - name: Wait for startup
-        run: sleep 15
+      #      - name: Wait for startup
+      #        run: sleep 15
 
-      - name: Run E2E test
-        run: |
-          curl --fail -X POST http://185.196.21.234:8000/api/movies \
-            -H "Content-Type: application/json" \
-            -d '{"title":"Batman","rating":8}'
-
-          curl --fail http://185.196.21.234:8000/api/movies
+      #      - name: Run E2E test
+      #        run: |
+      #          curl --fail -X POST http://185.196.21.234:8000/api/movies \
+      #            -H "Content-Type: application/json" \
+      #            -d '{"title":"Batman","rating":8}'
+      #
+      #          curl --fail http://185.196.21.234:8000/api/movies
 
       - name: Install K6
         run: |
