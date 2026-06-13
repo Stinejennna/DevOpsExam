@@ -18,6 +18,13 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./DevOpsExamMovie.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+RUN adduser --disabled-password --gecos "" appuser \
+    && chown -R appuser /app
+
+USER appuser
+
 ENTRYPOINT ["dotnet", "DevOpsExamMovie.dll"]

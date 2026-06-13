@@ -25,6 +25,12 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Set API key
+        run: echo "TMDB__ApiKey=${{ secrets.TMDB_API_KEY }}" >> $GITHUB_ENV
+        
+      - name: Set DB connection
+        run: echo "ConnectionStrings__DefaultConnection=${{ secrets.DB_CONNECTION }}" >> $GITHUB_ENV
+
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
 
@@ -95,6 +101,8 @@ jobs:
       #          script: |
       #            mkdir -p /root/dowa
       #            cd /root/dowa
+      #            export TMDB_API_KEY="${{ secrets.TMDB_API_KEY }}"
+      #            export DB_CONNECTION="${{ secrets.DB_CONNECTION }}"
       #            docker compose pull
       #            docker compose up -d
 
