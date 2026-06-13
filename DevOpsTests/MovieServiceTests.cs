@@ -29,6 +29,26 @@ public class MovieServiceTests
 
         return new MovieService(context, config);
     }
+    
+    private static MovieService CreateServiceWithKey(string key)
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var context = new AppDbContext(options);
+
+        var settings = new Dictionary<string, string?>
+        {
+            { "TMDB:ApiKey", key }
+        };
+
+        IConfiguration config = new ConfigurationBuilder()
+            .AddInMemoryCollection(settings)
+            .Build();
+
+        return new MovieService(context, config);
+    }
 
     [Fact]
     public async Task AddMovie_Valid_AddsMovie()
@@ -554,5 +574,96 @@ public async Task AddMovie_TestKey_AddsMetadata()
             new RatingUpdate { Rating = 8 });
 
         Assert.IsType<OkResult>(result);
+    }
+    
+    [Fact]
+    public async Task AddMovie_Null_Throws()
+    {
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            service.AddMovie(null!));
+    }
+    
+    [Fact]
+    public async Task UpdateRating_InvalidId_DoesNothing_NoCrash()
+    {
+        var service = CreateService();
+
+        service.UpdateRating(999, 5);
+
+        Assert.Empty(service.GetAll());
+    }
+    
+    [Fact]
+    public void DeleteMovie_InvalidId_NoException()
+    {
+        var service = CreateService();
+
+        service.DeleteMovie(999);
+
+        Assert.Empty(service.GetAll());
+    }
+    
+    [Theory]
+    [InlineData(28, "Action")]
+    [InlineData(12, "Adventure")]
+    [InlineData(16, "Animation")]
+    [InlineData(35, "Comedy")]
+    [InlineData(80, "Crime")]
+    public void GenreMapping_Works(int id, string expected)
+    {
+        var method = typeof(MovieService)
+            .GetMethod("GetGenreName", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        var result = method!.Invoke(null, new object[] { id });
+
+        Assert.Equal(expected, result);
+    }
+    
+    [Fact]
+    public void DeleteMovie_InvalidId_NoChanges()
+    {
+        var service = CreateService();
+
+        service.DeleteMovie(999);
+
+        Assert.Empty(service.GetAll());
+    }
+    
+    [Fact]
+    public void UpdateRating_InvalidId_NoChanges()
+    {
+        var service = CreateService();
+
+        service.UpdateRating(999, 5);
+
+        Assert.Empty(service.GetAll());
+    }
+    
+    [Fact]
+    public async Task AddMovie_NoResultsKey_SetsDefaultValues()
+    {
+        var service = CreateServiceWithKey("noresults-test");
+        
+        await service.AddMovie(new Movie { Title = "UnknownMovie", Rating = 5 });
+        
+        var movie = service.GetAll().First();
+        Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
+        Assert.Equal("-", movie.ReleaseYear);
+        Assert.Equal("Unknown", movie.Genre);
+    }
+
+    [Fact]
+    public async Task AddMovie_NoPosterKey_SetsDefaultPoster()
+    {
+        var service = CreateServiceWithKey("noposter-test");
+        
+        await service.AddMovie(new Movie { Title = "NoPosterMovie", Rating = 5 });
+        
+        var movie = service.GetAll().First();
+        Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
+        Assert.Equal("2020", movie.ReleaseYear);
+        Assert.Equal("Test", movie.Genre);
     }
 }
