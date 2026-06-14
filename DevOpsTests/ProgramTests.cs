@@ -14,14 +14,16 @@ public class ProgramTests
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         private readonly string _env;
-        public CustomWebApplicationFactory(string env = "Production") => _env = env;
+        public CustomWebApplicationFactory(string env) => _env = env;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment(_env);
-            builder.ConfigureServices(services =>
+
+            builder.ConfigureTestServices(services =>
             {
-                var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+                var descriptor = services.SingleOrDefault(d => 
+                    d.ServiceType == typeof(DbContextOptions<AppDbContext>));
                 if (descriptor != null) services.Remove(descriptor);
                 
                 services.AddDbContext<AppDbContext>(options =>
