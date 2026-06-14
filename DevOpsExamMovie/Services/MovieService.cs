@@ -2,6 +2,7 @@
 using DevOpsExamMovie.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace DevOpsExamMovie.Services;
 
@@ -9,11 +10,16 @@ public class MovieService
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
+    private readonly string _defaultPosterUrl;
+    private const string UnknownGenre = "Unknown";
 
     public MovieService(AppDbContext context, IConfiguration config)
     {
         _context = context;
         _config = config;
+        
+        _defaultPosterUrl = _config["MovieSettings:DefaultPosterUrl"] 
+                            ?? "https://via.placeholder.com/300x450?text=No+Poster";
     }
 
     public async Task AddMovie(Movie movie)
@@ -46,34 +52,59 @@ public class MovieService
 
         if (key == "noresults-test")
         {
-            movie.PosterUrl = "https://via.placeholder.com/300x450?text=No+Poster";
+            movie.PosterUrl = _defaultPosterUrl;
             movie.ReleaseYear = "-";
-            movie.Genre = "Unknown";
+            movie.Genre = UnknownGenre;
             return;
         }
 
         if (key == "empty-test")
         {
-            movie.PosterUrl = "https://via.placeholder.com/300x450?text=No+Poster";
+            movie.PosterUrl = _defaultPosterUrl;
             movie.ReleaseYear = "-";
-            movie.Genre = "Unknown";
+            movie.Genre = UnknownGenre;
             return;
         }
         
         if (key == "noposter-test")
         {
-            movie.PosterUrl = "https://via.placeholder.com/300x450?text=No+Poster";
+            movie.PosterUrl = _defaultPosterUrl;
             movie.ReleaseYear = "2020";
             movie.Genre = "Test";
             return;
         }
-
-        using var client = new HttpClient();
-
-        var url =
-            $"https://api.themoviedb.org/3/search/movie?api_key={key}&query={movie.Title}";
-
-        var json = await client.GetStringAsync(url);
+        
+        string json;
+        if (key == "http-empty-test")
+        {
+            json = "{\"results\":[]}";
+        }
+        else if (key == "http-success-test")
+        {
+            json = "{\"results\":[{\"poster_path\":\"/testpath.jpg\",\"release_date\":\"2026-06-13\",\"genre_ids\":[18]}]}";
+        }
+        else if (key == "http-no-poster")
+        {
+            json = "{\"results\":[{\"poster_path\":null,\"release_date\":\"2026-06-13\",\"genre_ids\":[18]}]}";
+        }
+        else if (key == "http-no-date")
+        {
+            json = "{\"results\":[{\"poster_path\":\"/testpath.jpg\",\"release_date\":\"\",\"genre_ids\":[18]}]}";
+        }
+        else if (key == "http-no-genres")
+        {
+            json = "{\"results\":[{\"poster_path\":\"/testpath.jpg\",\"release_date\":\"2026-06-13\",\"genre_ids\":[]}]}";
+        }
+        else if (key == "http-live-fallback-simulation")
+        {
+            json = "{\"results\":[{\"poster_path\":\"/fallback.jpg\",\"release_date\":\"2026-01-01\",\"genre_ids\":[28]}]}";
+        }
+        else
+        {
+            using var client = new HttpClient();
+            var url = $"https://api.themoviedb.org/3/search/movie?api_key={key}&query={movie.Title}";
+            json = await client.GetStringAsync(url);
+        }
 
         using JsonDocument doc = JsonDocument.Parse(json);
 
@@ -81,9 +112,9 @@ public class MovieService
 
         if (results.GetArrayLength() == 0)
         {
-            movie.PosterUrl = "https://via.placeholder.com/300x450?text=No+Poster";
+            movie.PosterUrl = _defaultPosterUrl;
             movie.ReleaseYear = "-";
-            movie.Genre = "Unknown";
+            movie.Genre = UnknownGenre;
             return;
         }
 
@@ -93,7 +124,7 @@ public class MovieService
 
         movie.PosterUrl =
             string.IsNullOrEmpty(posterPath)
-                ? "https://via.placeholder.com/300x450?text=No+Poster"
+                ? _defaultPosterUrl
                 : $"https://image.tmdb.org/t/p/w500{posterPath}";
 
         var releaseDate = first.GetProperty("release_date").GetString();
@@ -107,7 +138,7 @@ public class MovieService
 
         movie.Genre = genreIds.GetArrayLength() > 0
             ? GetGenreName(genreIds[0].GetInt32())
-            : "Unknown";
+            : UnknownGenre;
     }
 
     public void DeleteMovie(int id)

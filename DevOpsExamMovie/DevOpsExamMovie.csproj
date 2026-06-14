@@ -24,4 +24,10 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Update="Migrations\**\*.cs">
+            <SonarQubeExclude>true</SonarQubeExclude>
+        </Compile>
+    </ItemGroup>
+
 </Project>

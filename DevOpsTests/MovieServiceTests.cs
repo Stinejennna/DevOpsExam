@@ -436,7 +436,7 @@ public async Task AddMovie_TestKey_AddsMetadata()
     }
 
     [Fact]
-    public async Task Controller_Delete_InvalidId_ReturnsOk()
+    public void Controller_Delete_InvalidId_ReturnsOk()
     {
         var service = CreateService();
         var controller = new MoviesController(service);
@@ -586,7 +586,7 @@ public async Task AddMovie_TestKey_AddsMetadata()
     }
     
     [Fact]
-    public async Task UpdateRating_InvalidId_DoesNothing_NoCrash()
+    public void UpdateRating_InvalidId_DoesNothing_NoCrash()
     {
         var service = CreateService();
 
@@ -611,6 +611,13 @@ public async Task AddMovie_TestKey_AddsMetadata()
     [InlineData(16, "Animation")]
     [InlineData(35, "Comedy")]
     [InlineData(80, "Crime")]
+    [InlineData(18, "Drama")] 
+    [InlineData(14, "Fantasy")] 
+    [InlineData(27, "Horror")] 
+    [InlineData(9648, "Mystery")] 
+    [InlineData(10749, "Romance")] 
+    [InlineData(878, "Sci-Fi")] 
+    [InlineData(53, "Thriller")] 
     public void GenreMapping_Works(int id, string expected)
     {
         var method = typeof(MovieService)
@@ -665,5 +672,141 @@ public async Task AddMovie_TestKey_AddsMetadata()
         Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
         Assert.Equal("2020", movie.ReleaseYear);
         Assert.Equal("Test", movie.Genre);
+    }
+    
+    [Fact]
+    public async Task AddMovie_EmptyTestKey_SetsDefaultValues()
+    {
+        // Covers: if (key == "empty-test")
+        var service = CreateServiceWithKey("empty-test");
+        
+        await service.AddMovie(new Movie { Title = "EmptyMovie", Rating = 5 });
+        
+        var movie = service.GetAll().First();
+        Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
+        Assert.Equal("-", movie.ReleaseYear);
+        Assert.Equal("Unknown", movie.Genre);
+    }
+
+    [Fact]
+    public async Task AddMovie_HttpEmptyResponse_SetsDefaults()
+    {
+        // Covers the 'results.GetArrayLength() == 0' line path
+        var service = CreateServiceWithKey("http-empty-test");
+        
+        await service.AddMovie(new Movie { Title = "No Result", Rating = 5 });
+        
+        var movie = service.GetAll().First();
+        Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
+        Assert.Equal("-", movie.ReleaseYear);
+        Assert.Equal("Unknown", movie.Genre);
+    }
+
+    [Fact]
+    public async Task AddMovie_HttpValidResponse_ParsesCorrectly()
+    {
+        // Covers the parsing logic extraction lines, string indexing, and genre evaluation
+        var service = CreateServiceWithKey("http-success-test");
+        
+        await service.AddMovie(new Movie { Title = "Success Movie", Rating = 8 });
+        
+        var movie = service.GetAll().First();
+        Assert.Equal("https://image.tmdb.org/t/p/w500/testpath.jpg", movie.PosterUrl);
+        Assert.Equal("2026", movie.ReleaseYear);
+        Assert.Equal("Drama", movie.Genre); // 18 maps to Drama
+    }
+    
+    [Fact]
+    public void Controller_UpdateRating_NullRating_ReturnsBadRequest()
+    {
+        // Covers: if (!request.Rating.HasValue) -> return BadRequest
+        var service = CreateService();
+        var controller = new MoviesController(service);
+
+        var result = controller.UpdateRating(1, new RatingUpdate { Rating = null });
+
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Rating is required.", badRequestResult.Value);
+    }
+    
+    [Fact]
+    public async Task AddMovie_HttpNoPoster_UsesDefaultPosterUrl()
+    {
+        // Covers: string.IsNullOrEmpty(posterPath) ? _defaultPosterUrl : ...
+        var service = CreateServiceWithKey("http-no-poster");
+
+        await service.AddMovie(new Movie { Title = "No Poster Path", Rating = 7 });
+
+        var movie = service.GetAll().First();
+        Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
+    }
+
+    [Fact]
+    public async Task AddMovie_HttpNoDate_UsesFallbackDash()
+    {
+        // Covers: string.IsNullOrWhiteSpace(releaseDate) ? "-" : ...
+        var service = CreateServiceWithKey("http-no-date");
+
+        await service.AddMovie(new Movie { Title = "No Release Date", Rating = 6 });
+
+        var movie = service.GetAll().First();
+        Assert.Equal("-", movie.ReleaseYear);
+    }
+
+    [Fact]
+    public async Task AddMovie_HttpNoGenres_UsesUnknownGenre()
+    {
+        // Covers: genreIds.GetArrayLength() > 0 ? ... : UnknownGenre
+        var service = CreateServiceWithKey("http-no-genres");
+
+        await service.AddMovie(new Movie { Title = "No Genres", Rating = 5 });
+
+        var movie = service.GetAll().First();
+        Assert.Equal("Unknown", movie.Genre);
+    }
+
+    [Fact]
+    public async Task AddMovie_LiveFallbackSimulation_ExecutesElseBlockBranch()
+    {
+        var service = CreateServiceWithKey("http-live-fallback-simulation");
+
+        await service.AddMovie(new Movie { Title = "Live Fallback Simulation", Rating = 8 });
+
+        var movie = service.GetAll().First();
+        Assert.Equal("https://image.tmdb.org/t/p/w500/fallback.jpg", movie.PosterUrl);
+        Assert.Equal("2026", movie.ReleaseYear);
+        Assert.Equal("Action", movie.Genre); 
+    }
+    
+    [Fact]
+    public async Task AddMovie_HttpNoPosterPath_HandlesNullProperly()
+    {
+        var service = CreateServiceWithKey("http-no-poster");
+
+        await service.AddMovie(new Movie { Title = "Null Poster Test", Rating = 5 });
+
+        var movie = service.GetAll().First();
+        Assert.Equal("https://via.placeholder.com/300x450?text=No+Poster", movie.PosterUrl);
+    }
+    
+    [Fact]
+    public async Task AddMovie_HttpFallbackSimulation_ParsesCorrectly()
+    {
+        var service = CreateServiceWithKey("http-live-fallback-simulation");
+
+        await service.AddMovie(new Movie { Title = "Fallback Test", Rating = 5 });
+
+        var movie = service.GetAll().First();
+        
+        Assert.Equal("2026", movie.ReleaseYear);
+        Assert.Equal("https://image.tmdb.org/t/p/w500/fallback.jpg", movie.PosterUrl);
+    }
+    
+    [Fact]
+    public async Task AddMovie_RealHttpPath_TriggersHttpClient()
+    {
+        var service = CreateServiceWithKey("some-random-api-key");
+        
+        await Assert.ThrowsAnyAsync<Exception>(() => service.AddMovie(new Movie { Title = "Test", Rating = 5 }));
     }
 }

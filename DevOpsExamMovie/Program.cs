@@ -34,8 +34,13 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+    var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    
+    if (env.EnvironmentName != "Testing")
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.MigrateAsync();
+    }
 }
 
 app.UseHttpsRedirection();
@@ -44,3 +49,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.RunAsync();
+
+public partial class Program 
+{
+    protected Program() { }
+}
