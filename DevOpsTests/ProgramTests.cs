@@ -9,49 +9,60 @@ using Xunit;
 
 namespace DevOpsTests;
 
-public class ProgramTests 
+public class ProgramTests : IClassFixture<WebApplicationFactory<Program>>
 {
+    private readonly WebApplicationFactory<Program> _factory;
+
+    public ProgramTests(WebApplicationFactory<Program> factory)
+    {
+        _factory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment("Testing");
+        });
+    }
+    
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
-        private readonly string _env;
-        public CustomWebApplicationFactory(string env) => _env = env;
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment(_env);
-
-            builder.ConfigureTestServices(services =>
+            builder.UseEnvironment("Production"); 
+            builder.ConfigureServices(services =>
             {
-                var descriptor = services.SingleOrDefault(d => 
-                    d.ServiceType == typeof(DbContextOptions<AppDbContext>));
-                if (descriptor != null) services.Remove(descriptor);
+                services.RemoveAll(typeof(DbContextOptions<AppDbContext>));
+                services.RemoveAll(typeof(AppDbContext));
                 
                 services.AddDbContext<AppDbContext>(options =>
-                    options.UseInMemoryDatabase("TestDb_" + Guid.NewGuid()));
+                    options.UseInMemoryDatabase("MigrationTestDb"));
             });
         }
     }
 
     [Fact]
-    public void Application_Starts_Successfully()
+    public void Application_StartsAndRegistersServices_Successfully()
     {
-        using var factory = new CustomWebApplicationFactory("Testing");
-        var client = factory.CreateClient();
+        var client = _factory.CreateClient();
+        
         Assert.NotNull(client);
     }
     
     [Fact]
     public async Task AppStartup_WhenNotTesting_ExecutesMigration()
     {
-        using var factory = new CustomWebApplicationFactory("Production");
+        using var factory = new CustomWebApplicationFactory();
+        
         var client = factory.CreateClient();
+        
         Assert.NotNull(client);
     }
     
     [Fact]
     public void Application_Starts_InDevelopmentMode_MapsOpenApi()
     {
-        using var factory = new CustomWebApplicationFactory("Development");
+        var factory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment("Development");
+        });
+
         var client = factory.CreateClient();
         Assert.NotNull(client);
     }
