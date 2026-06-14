@@ -46,7 +46,7 @@ jobs:
             /k:"MovieRater" \
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.exclusions="**/Migrations/**,movie-ui/src/app/app.ts"
+            /d:sonar.exclusions="**/Migrations/**,movie-ui/src/app/app.ts" \
             /d:sonar.cs.vstest.reportsPaths="**/*.trx" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
