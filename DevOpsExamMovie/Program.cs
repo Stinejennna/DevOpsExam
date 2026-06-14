@@ -35,15 +35,11 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-
+    
     if (env.EnvironmentName != "Testing")
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        if (db.Database.IsRelational())
-        {
-            await db.Database.MigrateAsync();
-        }
+        await db.Database.MigrateAsync();
     }
 }
 
@@ -56,5 +52,5 @@ await app.RunAsync();
 
 public partial class Program 
 {
-    public Program() { }
+    protected Program() { }
 }
