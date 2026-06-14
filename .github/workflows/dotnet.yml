@@ -58,7 +58,7 @@ jobs:
             dotnet test --no-build --configuration Release \
               --logger "trx;LogFileName=test_results.trx" \
               --collect:"XPlat Code Coverage" \
-              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencoverer
+              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Restore tools
         run: dotnet tool restore
