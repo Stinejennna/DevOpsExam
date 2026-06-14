@@ -18,16 +18,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    if (builder.Environment.IsEnvironment("Testing") || builder.Environment.IsEnvironment("Production_Test"))
-    {
-        options.UseInMemoryDatabase("InMemoryDb");
-    }
-    else
-    {
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    }
-});
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<MovieService>();
 
@@ -42,11 +33,10 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     
-    if (env.EnvironmentName != "Testing")
+    if (!db.Database.IsInMemory())
     {
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.MigrateAsync();
     }
 }
