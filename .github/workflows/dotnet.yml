@@ -54,13 +54,13 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests
-          env:
-            ASPNETCORE_ENVIRONMENT: Testing
-          run: |
+        env:
+          ASPNETCORE_ENVIRONMENT: Testing
+        run: |
             dotnet test --no-build --configuration Release \
-              --logger "trx;LogFileName=test_results.trx" \
-              --collect:"XPlat Code Coverage" \
-              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+            --logger "trx;LogFileName=test_results.trx" \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Restore tools
         run: dotnet tool restore
