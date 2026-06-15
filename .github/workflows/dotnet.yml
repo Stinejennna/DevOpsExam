@@ -46,7 +46,7 @@ jobs:
             /k:"MovieRater" \
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.exclusions="**/Migrations/**,movie-ui/src/app/app.ts" \
+            /d:sonar.exclusions="**/Migrations/**,movie-ui/src/app/app.ts,movie-ui/src/app/app.config.ts,movie-ui/src/app/app.routes.ts" \
             /d:sonar.cs.vstest.reportsPaths="**/*.trx" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
@@ -54,7 +54,9 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests
-        run: |
+          env:
+            ASPNETCORE_ENVIRONMENT: Testing
+          run: |
             dotnet test --no-build --configuration Release \
               --logger "trx;LogFileName=test_results.trx" \
               --collect:"XPlat Code Coverage" \
